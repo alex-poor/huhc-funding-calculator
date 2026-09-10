@@ -37,6 +37,18 @@ A wrinkle worth noting: because the deduction is a *whole-person* subtraction,
 the Care Plus rate rising to $296.8718 makes the deduction **$7.69 worse** per
 HUHC patient, not better.
 
+## How it works
+
+Three steps, with a rail you can click through in any order — it isn't a locked
+wizard. A running total sits at the foot of steps 1 and 2 so you can see the
+figure move as you type.
+
+1. **Cohort** — who you are counting.
+2. **Rates** — the withdrawn top-up rate, and the Care Plus rates either side of
+   1 July.
+3. **Impact** — the annual swing, the breakdown, and the per-patient before and
+   after. Export from here.
+
 ## What you need to use it
 
 | Input | Where it comes from | Required |
@@ -85,8 +97,9 @@ anywhere — every calculation runs in your own browser.
 
 Your inputs, including the optional practice name, are stored in your browser's
 `localStorage` so the page remembers them next visit. That never leaves your
-device, and **Reset to defaults** clears it. The PDF export uses your browser's
-own print-to-PDF; the file is produced on your machine.
+device, and **Start over** clears it. The PDF export uses your browser's own
+print-to-PDF, which renders a purpose-built one-page A4 report — not a
+screenshot of the screen — on your machine.
 
 ## Sources
 

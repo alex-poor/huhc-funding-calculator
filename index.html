@@ -1,741 +1,802 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HUHC Funding Calculator</title>
+<meta name="description" content="Size the annual funding loss a NZ practice or PHO takes from the withdrawal of the HUHC capitation top-up on 1 July 2026.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap">
 <style>
-  /* ------------------------------------------------------------------
-     Ledger. Red ink for what is gone, black for everything else,
-     a double rule under a balance. No rounded corners — print has none.
-     ------------------------------------------------------------------ */
   :root{
-    --paper:#E4E1D7;          /* manila desk */
-    --surface:#FCFBF7;        /* sheet on the desk */
-    --sunk:#F1EEE6;
-    --field:#FFFFFF;
-    --ink:#15171C;            /* blue-black, not grey-black */
-    --ink-soft:#3C4149;
-    --muted:#6B7079;
-    --rule:#C9C5B8;
-    --rule-strong:#A9A496;
-    --navy:#1B3A6B;           /* structural accent */
-    --navy-wash:#E7EBF3;
-    --red:#A6180F;            /* ledger red — losses only */
-    --red-wash:#F6E7E4;
-    --green:#1E5A3C;
-    --focus:#1B3A6B;
+    color-scheme: light;
+    --page:#F7F6F3;
+    --surface:#FFFFFF;
+    --field:#FDFDFC;
+    --result:#F3EFE8;
+    --wash:#FAF4F0;
+    --wash-bd:#F0E2DA;
+    --step-bd:#E0C7BB;
+    --bd:#EBE9E3;
+    --bd-input:#DEDBD3;
+    --bd-subtle:#F0EEE9;
+    --bd-table:#E5E2DA;
+    --rule:#E5E0D6;
+    --rule-row:#EAE5DC;
+    --track:#F2F0EB;
+    --pill:#EEECE6;
+    --ink:#2E2D2A;
+    --ink-body:#4A4844;
+    --ink-muted:#6C6A63;
+    --clay:#A8482A;
+    --clay-hover:#933E23;
+    --pos:#3F6B4F;
+    --ring:0 0 0 3px rgba(168,72,42,.13);
+    --grotesk:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --mono:"Spline Sans Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --paper:#101216; --surface:#191C22; --sunk:#14171C; --field:#0C0E12;
-      --ink:#E9E5DA; --ink-soft:#BDBCB4; --muted:#8C919B;
-      --rule:#2C3038; --rule-strong:#434852;
-      --navy:#8BAFE4; --navy-wash:#1A2231;
-      --red:#F0705A; --red-wash:#2B1714;
-      --green:#63B98C;
-      --focus:#8BAFE4;
-    }
-  }
-  :root[data-theme="dark"]{
-    --paper:#101216; --surface:#191C22; --sunk:#14171C; --field:#0C0E12;
-    --ink:#E9E5DA; --ink-soft:#BDBCB4; --muted:#8C919B;
-    --rule:#2C3038; --rule-strong:#434852;
-    --navy:#8BAFE4; --navy-wash:#1A2231;
-    --red:#F0705A; --red-wash:#2B1714;
-    --green:#63B98C;
-    --focus:#8BAFE4;
-  }
-
   *{box-sizing:border-box}
+  html,body{background:var(--page)}
   body{
-    background:var(--paper); color:var(--ink);
-    font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
-    font-size:15.5px; line-height:1.55; margin:0;
-    padding-inline:20px; padding-block:0 60px;
-    -webkit-font-smoothing:antialiased;
+    margin:0;color:var(--ink);font-family:var(--grotesk);
+    font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:1000px;margin:0 auto}
-  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px 72px}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
-  /* ---------- masthead ---------- */
-  header.top{
-    background:var(--surface);border:1px solid var(--rule);border-top:4px solid var(--ink);
-    padding:30px 30px 26px;margin-top:22px;
-  }
+  /* ---------- header ---------- */
+  header{padding-top:44px}
   .eyebrow{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;
-    font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--muted);font-weight:500;margin:0 0 16px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+    color:var(--ink-muted);margin:0 0 12px;font-weight:400;
   }
   h1{
-    font-family:"Bodoni Moda",Didot,"Times New Roman",serif;font-weight:500;
-    font-size:clamp(31px,5.4vw,50px);line-height:1.04;letter-spacing:-.022em;
-    margin:0;text-wrap:balance;font-feature-settings:"kern" 1;
+    font-weight:500;font-size:clamp(30px,4.4vw,44px);line-height:1.1;
+    letter-spacing:-.022em;margin:0;
   }
-  .standfirst{
-    font-size:clamp(14.5px,1.9vw,16.5px);line-height:1.6;color:var(--ink-soft);
-    margin:18px 0 0;max-width:66ch;
-  }
+  .standfirst{font-size:17px;line-height:1.55;color:var(--ink-muted);margin:12px 0 0;max-width:50ch}
 
-  /* ---------- result: a balance line ---------- */
-  .result{background:var(--surface);border:1px solid var(--rule);border-top:none;margin:0}
-  .result-main{
-    display:flex;flex-wrap:wrap;gap:24px 44px;align-items:flex-end;
-    justify-content:space-between;padding:26px 30px 22px;
+  /* ---------- step rail ---------- */
+  .rail{display:flex;gap:8px;margin:26px 0 26px}
+  .rail button{
+    flex:1;display:flex;align-items:center;gap:10px;cursor:pointer;
+    padding:13px 14px;border-radius:12px;border:1px solid var(--bd);
+    background:var(--surface);font-family:var(--grotesk);text-align:left;
   }
-  .result-label{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;
-    font-size:10px;letter-spacing:.18em;text-transform:uppercase;
-    color:var(--muted);margin:0 0 10px;
+  .rail .pill{
+    width:22px;height:22px;border-radius:999px;flex:none;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--pill);color:var(--ink-muted);
+    font-family:var(--mono);font-size:12px;font-weight:500;
   }
-  .headline{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;
-    font-size:clamp(34px,7vw,54px);font-weight:600;line-height:1;
-    letter-spacing:-.035em;color:var(--red);font-variant-numeric:tabular-nums;
-    border-bottom:4px double var(--red);padding-bottom:9px;display:inline-block;
-  }
-  .headline-sub{font-size:12.5px;color:var(--muted);margin-top:11px;line-height:1.45}
-  .bracket{min-width:216px;flex:0 1 auto}
-  .bracket-row{
-    display:flex;justify-content:space-between;gap:18px;
-    padding:6px 0;border-bottom:1px solid var(--rule);font-size:13px;
-  }
-  .bracket-row:last-child{border-bottom:none}
-  .bracket-row span{color:var(--ink-soft)}
-  .bracket-row b{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:500;
-    font-variant-numeric:tabular-nums;color:var(--red);
-  }
+  .rail .lbl{font-size:14px;font-weight:500;color:var(--ink-body)}
+  .rail button[aria-current="step"]{border-color:var(--step-bd);background:var(--wash)}
+  .rail button[aria-current="step"] .pill{background:var(--clay);color:#fff}
+  .rail button[aria-current="step"] .lbl{color:var(--ink)}
 
-  .result-strip{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    border-top:1px solid var(--rule);
-  }
-  .chip{padding:15px 18px;border-right:1px solid var(--rule);background:var(--sunk)}
-  .chip:last-child{border-right:none}
-  .chip .v{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:18px;
-    font-weight:600;font-variant-numeric:tabular-nums;line-height:1.15;
-  }
-  .chip .k{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.4}
+  /* ---------- cards ---------- */
+  .card{background:var(--surface);border:1px solid var(--bd);border-radius:16px;padding:26px 24px}
+  .card h2{font-weight:500;font-size:20px;line-height:1.25;letter-spacing:-.012em;margin:0}
+  .card .helper{font-size:14px;line-height:1.5;color:var(--ink-muted);margin:6px 0 0}
+  .fields{display:grid;gap:18px;margin-top:22px}
+  .cols{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .cols.rates{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .divider{height:1px;background:var(--bd-subtle);border:0;margin:4px 0}
 
-  /* ---------- panels ---------- */
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
-  @media (max-width:800px){.grid{grid-template-columns:1fr}}
-  .panel{background:var(--surface);border:1px solid var(--rule);padding:24px 26px 22px}
-  .panel h2{
-    font-family:"Bodoni Moda",Didot,"Times New Roman",serif;font-weight:500;
-    font-size:23px;margin:0 0 4px;letter-spacing:-.005em;line-height:1.15;
-  }
-  .panel .hint{font-size:12px;color:var(--muted);margin:0 0 20px;line-height:1.5}
+  label,.lab{display:block;font-size:13px;font-weight:500;line-height:1.3;color:var(--ink-body);margin-bottom:7px}
+  label .q,.lab .q{font-weight:400;color:var(--ink-muted)}
 
-  .field{margin-bottom:15px}
-  .field:last-child{margin-bottom:0}
-  label{
-    display:block;font-size:11px;font-weight:600;color:var(--ink-soft);
-    margin-bottom:6px;letter-spacing:.07em;text-transform:uppercase;
+  input[type=text],input[type=number],select{
+    width:100%;padding:11px 12px;border-radius:10px;
+    border:1px solid var(--bd-input);background:var(--field);color:var(--ink);
+    font-family:var(--grotesk);font-size:15px;
   }
-  label .note{font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0}
-  input[type="number"], input[type="text"], select{
-    width:100%;padding:9px 11px;font-size:15px;
-    background:var(--field);color:var(--ink);
-    border:1px solid var(--rule-strong);border-radius:0;
-  }
-  input[type="number"]{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
-  }
-  input[type="text"], select{font-family:"Archivo",sans-serif;font-size:14.5px}
-  input:focus-visible, select:focus-visible, button:focus-visible{
-    outline:2px solid var(--focus);outline-offset:1px;
-  }
-  input[type="range"]{width:100%;accent-color:var(--navy);margin-top:11px}
-  .rate-row{display:flex;gap:10px;align-items:center}
-  .rate-row input[type="number"]{flex:1}
-  .range-marks{
-    display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);
-    font-family:"IBM Plex Mono",ui-monospace,monospace;margin-top:3px;
-  }
+  input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  input:focus,select:focus{outline:none;border-color:var(--clay);box-shadow:var(--ring)}
+  #huhc{max-width:220px;font-size:22px;font-weight:500;padding:12px}
+  #rate{width:120px;text-align:right;color:var(--clay);font-size:17px;font-weight:500}
+  .rate-line{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .rate-line .lab{margin-bottom:0}
 
-  .seg{display:flex;border:1px solid var(--ink);margin-bottom:18px}
+  /* ---------- segmented ---------- */
+  .seg{display:flex;gap:4px;background:var(--track);padding:4px;border-radius:11px}
   .seg button{
-    flex:1;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer;
-    background:transparent;color:var(--ink-soft);border:none;
-    font-family:"Archivo",sans-serif;letter-spacing:.06em;text-transform:uppercase;
+    flex:1;cursor:pointer;border:0;background:transparent;border-radius:8px;
+    padding:9px 10px;font-family:var(--grotesk);font-size:14px;font-weight:500;color:var(--ink-muted);
   }
-  .seg button + button{border-left:1px solid var(--ink)}
-  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+  .seg button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(46,45,42,.08)}
+  .seg button:focus-visible{outline:2px solid var(--clay);outline-offset:1px}
 
-  /* ---------- tables ---------- */
-  .scroll{overflow-x:auto;border:1px solid var(--rule);margin-top:4px}
-  table{border-collapse:collapse;width:100%;min-width:430px;background:var(--surface)}
-  th,td{padding:7px 11px;font-size:12.5px;border-bottom:1px solid var(--rule);text-align:right}
-  th{
-    font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;
-    letter-spacing:.13em;background:var(--sunk);border-bottom:1px solid var(--rule-strong);
+  /* ---------- slider ---------- */
+  .slider-wrap{margin-top:14px;position:relative;padding-bottom:22px}
+  input[type=range]{width:100%;accent-color:var(--clay);margin:0}
+  input[type=range]:focus-visible{outline:2px solid var(--clay);outline-offset:3px}
+  .tick{
+    position:absolute;top:22px;font-family:var(--mono);font-size:11px;
+    color:var(--ink-muted);transform:translateX(-50%);white-space:nowrap;
   }
+  .caption{font-size:13px;color:var(--ink-muted);margin:10px 0 0}
+
+  /* ---------- band table ---------- */
+  .tablewrap{overflow-x:auto;margin-top:4px}
+  table{border-collapse:collapse;width:100%;min-width:340px}
+  th,td{padding:8px 10px;text-align:right;font-size:13px}
   th:first-child,td:first-child{text-align:left}
-  tbody tr:last-child td{border-bottom:none}
-  td input[type="number"]{width:78px;padding:4px 7px;font-size:12.5px;text-align:right}
-  tr.tot td{background:var(--sunk);font-weight:600;border-top:3px double var(--ink);border-bottom:none}
+  thead th{background:var(--page);color:var(--ink-muted);font-weight:500;font-size:12px}
+  thead th:first-child{border-radius:8px 0 0 8px}
+  thead th:last-child{border-radius:0 8px 8px 0}
+  tbody td{border-bottom:1px solid var(--bd-subtle)}
+  tbody tr:last-child td{border-bottom:0}
+  tfoot td{background:var(--page);font-weight:500;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  tfoot td:first-child{font-family:var(--grotesk);border-radius:8px 0 0 8px}
+  tfoot td:last-child{border-radius:0 8px 8px 0}
+  table input[type=number]{
+    width:70px;padding:6px 8px;border-radius:8px;border-color:var(--bd-table);
+    font-size:13px;text-align:right;
+  }
+  table input.r{width:78px}
 
-  /* ---------- ledger ---------- */
-  .ledger{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule)}
-  @media (max-width:560px){.ledger{grid-template-columns:1fr}}
-  .col{background:var(--surface);padding:22px 24px}
-  .col + .col{border-left:1px solid var(--rule)}
-  @media (max-width:560px){.col + .col{border-left:none;border-top:1px solid var(--rule)}}
-  .col-head{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
-    letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;
-  }
-  .col-when{
-    font-family:"Bodoni Moda",Didot,serif;font-size:19px;margin:0 0 16px;
-    font-weight:500;letter-spacing:-.005em;
-  }
-  .line{
-    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
-    padding:7px 0;border-bottom:1px solid var(--rule);font-size:13.5px;
-  }
-  .line span:first-child{color:var(--ink-soft)}
-  .line b{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:500;
-    font-variant-numeric:tabular-nums;white-space:nowrap;
-  }
-  .line.net{
-    border-bottom:none;border-top:3px double var(--ink);
-    margin-top:9px;padding-top:12px;
-  }
-  .line.net span:first-child{font-weight:600;color:var(--ink);letter-spacing:.02em}
-  .line.net b{font-size:19px;font-weight:600}
-  .pos{color:var(--green)} .neg{color:var(--red)}
-
-  /* ---------- pot bar ---------- */
-  .pot{margin-top:22px}
-  .pot-bar{
-    height:22px;background:var(--sunk);border:1px solid var(--rule-strong);
-    overflow:hidden;display:flex;margin-top:9px;
-  }
-  .pot-fill{
-    background:var(--red);height:100%;transition:width .18s ease;
-    background-image:repeating-linear-gradient(45deg,transparent 0 5px,rgba(0,0,0,.13) 5px 10px);
-  }
-  .pot-keys{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:8px;gap:14px}
-
-  /* ---------- actions ---------- */
-  .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px}
+  /* ---------- buttons ---------- */
+  .btnrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+  .btnrow .spacer{margin-left:auto}
   .btn{
     display:inline-flex;align-items:center;gap:8px;cursor:pointer;
-    font-family:"Archivo",sans-serif;font-size:12px;font-weight:600;
-    letter-spacing:.08em;text-transform:uppercase;
-    padding:10px 18px;border-radius:0;border:1px solid var(--ink);
-    background:var(--ink);color:var(--surface);
+    font-family:var(--grotesk);font-size:14px;font-weight:500;
+    padding:11px 18px;border-radius:10px;border:1px solid var(--clay);
+    background:var(--clay);color:#fff;
   }
-  .btn.ghost{background:transparent;color:var(--ink)}
-  .btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;
-    stroke-linecap:round;stroke-linejoin:round}
-  .actions .tip{font-size:12px;color:var(--muted)}
+  .btn:hover{background:var(--clay-hover);border-color:var(--clay-hover)}
+  .btn.sec{background:var(--surface);border-color:var(--bd-input);color:var(--ink-body)}
+  .btn.sec:hover{border-color:var(--clay);color:var(--clay)}
+  .btn:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
 
-  /* ---------- callout ---------- */
-  .callout{
-    background:var(--navy-wash);border:1px solid var(--rule);
-    border-left:3px solid var(--navy);padding:18px 22px;margin-top:18px;
+  /* ---------- sticky ---------- */
+  .sticky{
+    position:sticky;bottom:16px;margin-top:16px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:var(--surface);border:1px solid var(--rule);border-radius:12px;
+    padding:13px 18px;box-shadow:0 2px 10px rgba(46,45,42,.06);
   }
-  .callout h3{
-    font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
-    color:var(--navy);margin:0 0 10px;
-  }
-  .callout p{margin:0 0 9px;font-size:13px;color:var(--ink-soft);line-height:1.6}
-  .callout p:last-child{margin-bottom:0}
+  .sticky .k{font-size:14px;color:var(--ink-muted)}
+  .sticky .v{font-family:var(--mono);font-size:20px;font-weight:500;color:var(--clay);font-variant-numeric:tabular-nums}
 
-  /* ---------- privacy ---------- */
-  .privacy{
-    display:flex;gap:13px;align-items:flex-start;margin-top:18px;
-    background:var(--surface);border:1px solid var(--rule);
-    border-left:3px solid var(--ink);padding:17px 20px;
+  /* ---------- result ---------- */
+  .result{background:var(--result);border:1px solid var(--rule);border-radius:16px;padding:30px 26px}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink-muted);margin:0}
+  .headline{
+    font-family:var(--mono);font-weight:500;font-size:clamp(42px,9vw,74px);
+    line-height:.98;letter-spacing:-.035em;color:var(--clay);
+    font-variant-numeric:tabular-nums;margin:12px 0 0;
   }
-  .privacy svg{width:16px;height:16px;flex:none;margin-top:2px;fill:none;
-    stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-  .privacy p{margin:0;font-size:12.5px;color:var(--ink-soft);line-height:1.6}
-  .privacy strong{color:var(--ink)}
-  .inline-privacy{font-size:11px;color:var(--muted);margin:10px 0 0;line-height:1.45}
+  .swingsub{font-size:14px;color:var(--ink-body);margin:14px 0 0}
+  .breakdown{margin-top:22px;border-top:1px solid var(--rule)}
+  .brow{
+    display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+    padding:13px 0;border-bottom:1px solid var(--rule-row);font-size:14px;
+  }
+  .brow:last-child{border-bottom:0}
+  .brow .lbl{color:var(--ink-body)}
+  .brow .lbl em{font-style:normal;color:var(--ink-muted)}
+  .brow .fig{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--clay);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .brow.sens .lbl,.brow.sens .fig{color:var(--ink-muted)}
+  .brow .fig .cnt{color:var(--ink-body)}
 
-  /* ---------- notes ---------- */
-  section.notes{
-    margin-top:18px;background:var(--surface);
-    border:1px solid var(--rule);padding:26px 30px 24px;
-  }
-  section.notes h2{
-    font-family:"Bodoni Moda",Didot,serif;font-weight:500;font-size:25px;
-    margin:0 0 18px;padding-bottom:12px;border-bottom:1px solid var(--ink);
-  }
-  .notes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px 36px}
-  .notes-grid h4{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
-    letter-spacing:.16em;text-transform:uppercase;color:var(--navy);
-    margin:0 0 8px;font-weight:600;
-  }
-  .notes-grid p{font-size:12.5px;color:var(--ink-soft);margin:0 0 9px;line-height:1.6}
-  .notes-grid p:last-child{margin-bottom:0}
+  .ppgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-top:14px}
+  .ppcard{background:var(--surface);border:1px solid var(--bd);border-radius:16px;padding:22px 20px}
+  .ppcard .kicker.after{color:var(--clay)}
+  .pprow{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:9px 0;font-size:14px}
+  .pprow .fig{font-family:var(--mono);font-size:16px;font-weight:500;font-variant-numeric:tabular-nums}
+  .ppnet{border-top:1px solid var(--bd-subtle);margin-top:8px;padding-top:14px}
+  .ppnet .fig{font-size:22px}
+  .pos{color:var(--pos)} .clay{color:var(--clay)}
 
-  footer{
-    margin-top:18px;padding:18px 4px 0;border-top:1px solid var(--rule-strong);
-    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
-    color:var(--muted);line-height:1.8;letter-spacing:.02em;
-  }
-  .print-head{display:none}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  /* ---------- note ---------- */
+  .note{background:var(--wash);border:1px solid var(--wash-bd);border-radius:12px;padding:16px 18px;font-size:14px;line-height:1.55;color:var(--ink-body)}
+  .note b{font-family:var(--mono);font-weight:500;color:var(--clay)}
 
-  /* ---------- print ---------- */
+  /* ---------- details ---------- */
+  details{background:var(--surface);border:1px solid var(--bd);border-radius:16px;margin-top:14px}
+  summary{
+    list-style:none;cursor:pointer;padding:18px 22px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    font-size:15px;font-weight:500;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary .open{font-family:var(--mono);font-size:12px;color:var(--ink-muted);font-weight:400}
+  details[open] summary .open::after{content:"close"}
+  details:not([open]) summary .open::after{content:"open"}
+  .notes{
+    display:grid;gap:18px 26px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    padding:0 22px 24px;
+  }
+  .notes h3{font-size:13px;font-weight:500;color:var(--clay);margin:0 0 5px}
+  .notes p{font-size:13.5px;line-height:1.55;color:var(--ink-body);margin:0}
+
+  footer{font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--ink-muted);margin-top:26px}
+  [hidden]{display:none !important}
+
+  /* ---------- print: a separate A4 report ---------- */
+  [data-print-doc]{display:none}
   @media print{
-    @page{margin:14mm 13mm}
-    html,body{background:#fff!important;font-size:10pt}
-    body{padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .wrap{max-width:none}
-    :root{
-      --paper:#fff; --surface:#fff; --sunk:#F4F2EC; --field:#fff;
-      --ink:#111; --ink-soft:#333; --muted:#5F5F5F;
-      --rule:#BBB; --rule-strong:#8C8C8C;
-      --navy:#1B3A6B; --navy-wash:#EEF1F6;
-      --red:#98150D; --green:#1B5136;
-    }
-    header.top, .actions, .seg, input[type="range"], .range-marks,
-    .privacy svg, #detail-block .hint{display:none!important}
-    .print-head{display:block;border-bottom:3px double #111;padding-bottom:11px;margin-bottom:18px}
-    .print-head .ph-title{
-      font-family:"Bodoni Moda",Didot,serif;font-size:20pt;font-weight:500;
-      margin:0;line-height:1.12;
-    }
-    .print-head .ph-for{font-size:11.5pt;font-weight:600;margin:7px 0 0;color:#1B3A6B}
-    .print-head .ph-meta{
-      font-family:"IBM Plex Mono",monospace;font-size:7.5pt;color:#555;
-      margin:8px 0 0;letter-spacing:.09em;text-transform:uppercase;
-    }
-    input[type="number"], input[type="text"], select{
-      border:none!important;background:transparent!important;padding:0!important;
-      font-weight:600;color:#111!important;-webkit-appearance:none;appearance:none;
-      width:auto!important;min-width:56px;font-size:10pt;
-    }
-    td input[type="number"]{width:50px!important;text-align:right}
-    .field{
-      margin-bottom:7px;display:flex;justify-content:space-between;align-items:baseline;
-      gap:14px;border-bottom:1px solid #DDD;padding-bottom:5px;
-    }
-    label{margin-bottom:0;font-weight:400;color:#333;text-transform:none;letter-spacing:0;font-size:9.5pt}
-    .panel, .result, .ledger, .result-strip, .privacy, .callout{
-      break-inside:avoid;page-break-inside:avoid;
-    }
-    .grid{gap:14px}
-    .headline{font-size:29pt}
-    section.notes{break-before:page;page-break-before:always;border:none;padding:0}
-    .pot-fill{background:#98150D!important}
-    .chip{background:#F4F2EC!important}
-    .callout{background:#EEF1F6!important}
-    a[href]:after{content:""}
+    @page{size:A4;margin:16mm 15mm}
+    html,body{background:#fff !important}
+    [data-app]{display:none !important}
+    [data-print-doc]{display:block !important}
+    [data-print-doc] [data-keep]{break-inside:avoid;page-break-inside:avoid}
   }
+  .pd{color:#111110;font-family:var(--grotesk);font-size:11pt;line-height:1.4}
+  .pd .mast{display:flex;justify-content:space-between;align-items:flex-end;gap:20pt;
+    border-bottom:1.5pt solid #111110;padding-bottom:7pt}
+  .pd .mast h1{font-size:17pt;font-weight:500;margin:0;letter-spacing:-.01em}
+  .pd .mast .for{font-size:11pt;color:#A8482A;margin:3pt 0 0;font-weight:500}
+  .pd .mast .meta{font-family:var(--mono);font-size:9pt;color:#5A5854;text-align:right;line-height:1.5}
+  .pd .k{font-family:var(--mono);font-size:9pt;letter-spacing:.12em;text-transform:uppercase;color:#5A5854;margin:0}
+  .pd .sec{margin-top:13pt}
+  .pd .sec.rule{border-top:1pt solid #111110;padding-top:8pt}
+  .pd .big{font-family:var(--mono);font-size:36pt;font-weight:500;color:#A8482A;line-height:1;margin:6pt 0 0;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .pd .sub{font-size:11pt;margin:6pt 0 0;color:#33322F}
+  .pd .row{display:flex;justify-content:space-between;gap:16pt;padding:4.5pt 0;border-bottom:.5pt solid #E0DDD6;font-size:11pt}
+  .pd .row:last-child{border-bottom:0}
+  .pd .row .f{font-family:var(--mono);font-weight:500;font-size:11pt;color:#A8482A;font-variant-numeric:tabular-nums}
+  .pd .row.sens,.pd .row.sens .f{color:#5A5854}
+  .pd .row .f .cnt{color:#33322F}
+  .pd table{width:100%;border-collapse:collapse;margin-top:5pt}
+  .pd th,.pd td{padding:4pt 0;font-size:11pt;text-align:right;border-bottom:.5pt solid #E0DDD6}
+  .pd th:first-child,.pd td:first-child{text-align:left}
+  .pd thead th{font-size:9.5pt;font-weight:500;color:#5A5854;border-bottom:.5pt solid #C9C6BF}
+  .pd td.f{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
+  .pd tr.net td{font-size:11pt;border-bottom:0}
+  .pd tr.net td.f{font-size:14pt}
+  .pd .after{color:#A8482A}
+  .pd .caveat{font-size:10pt;margin:7pt 0 0;color:#33322F}
+  .pd .agrid{display:grid;grid-template-columns:1fr 1fr;gap:0 26pt;margin-top:5pt}
+  .pd .arow{display:flex;justify-content:space-between;gap:12pt;padding:3.5pt 0;border-bottom:.5pt solid #E0DDD6;font-size:10.5pt}
+  .pd .arow .v{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
+  .pd .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:6pt 26pt;margin-top:5pt}
+  .pd .mgrid p{font-size:8.5pt;line-height:1.4;margin:0;color:#33322F}
+  .pd .mgrid b{color:#111110;font-weight:500}
+  .pd .src{font-family:var(--mono);font-size:9pt;color:#5A5854;border-top:.5pt solid #C9C6BF;padding-top:6pt;margin-top:13pt}
 </style>
+</head>
+<body>
 
-<div class="wrap">
+<div class="wrap" data-app>
 
-  <div class="print-head">
-    <p class="ph-title">HUHC capitation withdrawal — funding impact</p>
-    <p class="ph-for" id="ph-for" hidden></p>
-    <p class="ph-meta" id="ph-meta">Scenario prepared <span id="ph-date"></span> · annual figures, GST exclusive</p>
-  </div>
-
-  <header class="top">
-    <p class="eyebrow">Primary care funding · scenario model</p>
-    <h1>What the HUHC top-up withdrawal costs a practice</h1>
-    <p class="standfirst">From 1 July 2026 the HUHC capitation top-up was removed from first-level services. The Care Plus formula still subtracts HUHC holders in full. Enter a cohort to size the gap that leaves.</p>
+  <header>
+    <p class="eyebrow">Primary care funding · FY2026/27</p>
+    <h1>HUHC funding impact</h1>
+    <p class="standfirst">What the withdrawn capitation top&#8209;up costs your practice, per year.</p>
   </header>
 
-  <div class="result">
-    <div class="result-main">
-      <div>
-        <p class="result-label">Annual income swing</p>
-        <div class="headline" id="out-swing">−$12,046</div>
-        <div class="headline-sub" id="out-swing-sub">45 HUHC patients · $267.69 worse off per patient, per year</div>
-      </div>
-      <div class="bracket">
-        <p class="result-label">At the published rate range</p>
-        <div class="bracket-row"><span>Low · $156 per patient</span><b id="out-low">−$7,366</b></div>
-        <div class="bracket-row"><span>High · $370 per patient</span><b id="out-high">−$16,996</b></div>
-      </div>
-    </div>
-    <div class="result-strip">
-      <div class="chip"><div class="v neg" id="out-topup">−$11,700</div><div class="k">Top-up no longer paid</div></div>
-      <div class="chip"><div class="v neg" id="out-uplift">−$346</div><div class="k">Care Plus rate uplift, applied to the deduction</div></div>
-      <div class="chip"><div class="v" id="out-cpforgone">$13,359</div><div class="k">Care Plus deduction p.a. <span style="color:var(--muted)">— standing, both sides of 1 July</span></div></div>
-      <div class="chip"><div class="v" id="out-potshare">7.2%</div><div class="k">Share of Care Plus pot removed</div></div>
-    </div>
-  </div>
+  <nav class="rail" aria-label="Steps">
+    <button type="button" data-go="1" aria-current="step"><span class="pill num">1</span><span class="lbl">Cohort</span></button>
+    <button type="button" data-go="2"><span class="pill num">2</span><span class="lbl">Rates</span></button>
+    <button type="button" data-go="3"><span class="pill num">3</span><span class="lbl">Impact</span></button>
+  </nav>
 
-  <div class="actions">
-    <button type="button" class="btn" id="export-pdf">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
-      Export as PDF
-    </button>
-    <button type="button" class="btn ghost" id="reset">Reset to defaults</button>
-    <span class="tip">Opens your browser's print dialog — choose <strong>Save as PDF</strong> as the destination.</span>
-  </div>
-
-  <div class="grid">
-
-    <div class="panel">
+  <!-- ========== STEP 1 ========== -->
+  <section id="step1">
+    <div class="card">
       <h2>Your cohort</h2>
-      <p class="hint">HUHC holders on the roll, from your current monthly register.</p>
+      <p class="helper">From your current monthly register.</p>
 
-      <div class="field">
-        <label for="practice">Practice or PHO name <span class="note">— optional, appears on the PDF</span></label>
-        <input type="text" id="practice" placeholder="e.g. Riverbank Medical Centre" autocomplete="organization" maxlength="80">
-      </div>
+      <div class="fields">
+        <div>
+          <label for="practice">Practice or PHO name <span class="q">— appears on the PDF</span></label>
+          <input type="text" id="practice" maxlength="80" autocomplete="organization" placeholder="e.g. Riverbank Medical">
+        </div>
 
-      <div class="seg" role="group" aria-label="Cohort detail">
-        <button type="button" id="mode-simple" aria-pressed="true">Total only</button>
-        <button type="button" id="mode-detail" aria-pressed="false">By age &amp; sex</button>
-      </div>
+        <div>
+          <span class="lab" id="modelab">How are you counting?</span>
+          <div class="seg" role="group" aria-labelledby="modelab">
+            <button type="button" id="mode-simple" aria-pressed="true">Total only</button>
+            <button type="button" id="mode-detail" aria-pressed="false">By age &amp; sex</button>
+          </div>
+        </div>
 
-      <div id="simple-block">
-        <div class="field">
+        <div id="simple-block">
           <label for="huhc">HUHC patients enrolled</label>
-          <input type="number" id="huhc" min="0" step="1" value="45">
+          <input type="number" id="huhc" min="0" step="1" inputmode="numeric">
+        </div>
+
+        <div id="detail-block" hidden>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr><th scope="col">Age band</th><th scope="col">Male</th><th scope="col">Female</th><th scope="col">Rate $/yr</th></tr>
+              </thead>
+              <tbody id="bandrows"></tbody>
+              <tfoot>
+                <tr><td>Total</td><td id="bt-m">0</td><td id="bt-f">0</td><td id="bt-r">—</td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="cols">
+          <div>
+            <label for="enrolled">Total enrolled population</label>
+            <input type="number" id="enrolled" min="0" step="1" inputmode="numeric">
+          </div>
+          <div>
+            <label for="potmode">Care Plus potential</label>
+            <select id="potmode">
+              <option value="est">Estimate from roll (6.9%)</option>
+              <option value="manual">Enter it directly</option>
+            </select>
+          </div>
+          <div id="pot-manual" hidden>
+            <label for="potential">Expected Care Plus patients</label>
+            <input type="number" id="potential" min="0" step="0.1" inputmode="decimal">
+          </div>
         </div>
       </div>
 
-      <div id="detail-block" hidden>
-        <div class="scroll">
-          <table>
-            <thead>
-              <tr><th>Age band</th><th>Male</th><th>Female</th><th>Rate $/yr</th></tr>
-            </thead>
-            <tbody id="band-rows"></tbody>
-            <tfoot>
-              <tr class="tot"><td>Total</td><td class="mono" id="bt-m">0</td><td class="mono" id="bt-f">0</td><td class="mono" id="bt-r">—</td></tr>
-            </tfoot>
-          </table>
-        </div>
-        <p class="hint" style="margin-top:10px;margin-bottom:0">Counts are seeded from a typical NZ HUHC age profile — replace them with your own. Rates are yours to supply; see the note below.</p>
-      </div>
-
-      <div class="field" style="margin-top:18px">
-        <label for="enrolled">Total enrolled population <span class="note">— optional, for context</span></label>
-        <input type="number" id="enrolled" min="0" step="1" value="9000">
-      </div>
-
-      <div class="field">
-        <label for="potmode">Care Plus potential <span class="note">— your expected Care Plus patient count</span></label>
-        <select id="potmode">
-          <option value="est" selected>Estimate from roll (6.9%)</option>
-          <option value="manual">Enter it directly</option>
-        </select>
-      </div>
-      <div class="field" id="pot-manual-field" hidden>
-        <label for="potential">Expected Care Plus patients</label>
-        <input type="number" id="potential" min="0" step="0.1" value="621">
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Rates</h2>
-      <p class="hint">Care Plus figures are the published Health NZ rates. The HUHC top-up rate is not published in the current schedule — it was removed — so you supply it.</p>
-
-      <div class="field" id="simple-rate-field">
-        <label for="rate">HUHC top-up rate, per patient per year <span class="note">— withdrawn 1 July 2026</span></label>
-        <div class="rate-row">
-          <input type="number" id="rate" min="0" step="0.01" value="260">
-        </div>
-        <input type="range" id="rate-slider" min="0" max="500" step="1" value="260" aria-label="HUHC top-up rate">
-        <div class="range-marks"><span>$0</span><span>published range $156–$370</span><span>$500</span></div>
-      </div>
-
-      <div class="field">
-        <label for="cpold">Care Plus rate before 1 July 2026</label>
-        <input type="number" id="cpold" min="0" step="0.0001" value="289.18">
-      </div>
-      <div class="field">
-        <label for="cpnew">Care Plus rate from 1 July 2026</label>
-        <input type="number" id="cpnew" min="0" step="0.0001" value="296.8718">
-      </div>
-
-      <div class="callout" style="margin-top:20px">
-        <h3>Why the uplift makes it worse</h3>
-        <p>The Care Plus rate rose by <b class="mono" id="out-delta">$7.69</b>. Because the formula subtracts a <strong>whole person</strong> per HUHC holder, that uplift increases the deduction rather than offsetting it.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel" style="margin-top:20px">
-    <h2>Per patient, before and after</h2>
-    <p class="hint">The mechanism in one line: a small net gain becomes a straight loss.</p>
-    <div class="ledger">
-      <div class="col">
-        <p class="col-head">Before</p>
-        <p class="col-when">To 30 June 2026</p>
-        <div class="line"><span>HUHC capitation top-up</span><b class="pos" id="pp-topup-before">+$260.00</b></div>
-        <div class="line"><span>Care Plus deduction</span><b class="neg" id="pp-cp-before">−$289.18</b></div>
-        <div class="line net"><span>Net per patient</span><b id="pp-net-before">−$29.18</b></div>
-      </div>
-      <div class="col">
-        <p class="col-head">After</p>
-        <p class="col-when">From 1 July 2026</p>
-        <div class="line"><span>HUHC capitation top-up</span><b>$0.00</b></div>
-        <div class="line"><span>Care Plus deduction</span><b class="neg" id="pp-cp-after">−$296.87</b></div>
-        <div class="line net"><span>Net per patient</span><b class="neg" id="pp-net-after">−$296.87</b></div>
-      </div>
-    </div>
-
-    <div class="pot">
-      <p class="result-label" style="margin-bottom:0">Care Plus pot, after the HUHC deduction</p>
-      <div class="pot-bar"><div class="pot-fill" id="pot-fill" style="width:7.2%"></div></div>
-      <div class="pot-keys">
-        <span id="pot-left">Retained: <b class="mono" id="pot-retained">$170,998</b></span>
-        <span id="pot-right">Removed: <b class="mono" id="pot-removed">$13,359</b></span>
-      </div>
-    </div>
-  </div>
-
-  <div class="callout">
-    <h3>Two things this model does not count</h3>
-    <p><strong>HUHC holders are excluded from two further flexible-pool streams.</strong> The FY2026/27 schedule labels them “Services to Improve Access (Non-HUHC)” and “Health Promotion (Non-HUHC)”. A HUHC patient generates $0.00 in both. On observed data that is roughly <b class="mono">$16</b> per HUHC patient per year on top of everything above.</p>
-    <p><strong>Care Plus is PHO funding, not practice funding.</strong> Health NZ pays the pool to the PHO, which distributes it. A practice figure here is an <em>attributable share</em> of the deduction — what lands in your settlement depends on your PHO's distribution rules.</p>
-  </div>
-
-  <div class="privacy">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.2-2.9 7.9-7 9-4.1-1.1-7-4.8-7-9V6l7-3z"/><path d="M9.5 12.2l1.8 1.8 3.4-3.4"/></svg>
-    <p><strong>Nothing you type here is retained.</strong> This is a static page with no server, no analytics, no cookies and no tracking. Your figures are never transmitted anywhere — the calculation runs entirely in your own browser. The practice name and inputs are kept only in this browser's local storage so the page remembers them on your next visit; “Reset to defaults” clears them. The exported PDF is generated by your browser on your own device. No patient-level data is required or accepted — this model works from counts alone.</p>
-  </div>
-
-  <section class="notes">
-    <h2>How this is calculated</h2>
-    <div class="notes-grid">
-      <div>
-        <h4>The deduction</h4>
-        <p>Health NZ's Care Plus formula sums a per-person Care Plus percentage across the enrolled population, then subtracts <em>the number of Enrolled Persons with High Use Health Cards</em>. It is a whole-person subtraction, so the marginal cost of HUHC status is exactly one Care Plus payment.</p>
-      </div>
-      <div>
-        <h4>Care Plus rates</h4>
-        <p>$296.8718 per expected Care Plus patient from 1 July 2026, per the published FY2026/27 capitation workbook. The prior rate of $289.18 is editable above if your own figure differs.</p>
-      </div>
-      <div>
-        <h4>The top-up rate is your input</h4>
-        <p>The FY2026/27 schedule carries five capitation streams — First Contact, Contingent, VLCA, CSC and U14 — and no HUHC column, because the rates were removed. Prior-year schedules are not publicly retrievable, so the withdrawn rate has to be supplied from your own funding records. Everything else here is published.</p>
-      </div>
-      <div>
-        <h4>Care Plus potential</h4>
-        <p>The expected Care Plus patient count, not a headcount — it is a sum of per-person probabilities. Across one PHO's 69 practices it ran between 3.5% and 10.3% of the roll; 6.9% is used as the estimate default. Enter your own if you have it.</p>
-      </div>
-      <div>
-        <h4>Age profile</h4>
-        <p>The by-band view seeds counts from an observed HUHC cohort: heavily elderly, roughly 59% aged 65 or over, and about 64% female. Replace with your own register figures — the shape varies a lot between practices.</p>
-      </div>
-      <div>
-        <h4>Scope</h4>
-        <p>Annual figures, GST exclusive. First-level capitation for the patient is unaffected by HUHC status and is not modelled, because it does not change with HUHC status either side of 1 July.</p>
+      <div class="btnrow">
+        <button type="button" class="btn spacer" data-go="2">Next — rates</button>
       </div>
     </div>
   </section>
 
-  <footer>
-    Rates from the Health New Zealand Primary Care Capitation Rates workbook FY2026/27, v1.0, effective 1 July 2026. A general model for any NZ practice or PHO — it contains no practice data.
-  </footer>
+  <!-- ========== STEP 2 ========== -->
+  <section id="step2" hidden>
+    <div class="card">
+      <h2>Your rates</h2>
+      <p class="helper">Care Plus rates are published. The withdrawn top&#8209;up rate isn't — supply it from your funding records.</p>
+
+      <div class="fields">
+        <div>
+          <div class="rate-line">
+            <span class="lab" id="ratelab">HUHC top&#8209;up rate, per patient per year</span>
+            <input type="number" id="rate" min="0" step="0.01" inputmode="decimal" aria-labelledby="ratelab">
+          </div>
+          <div class="slider-wrap">
+            <input type="range" id="rate-slider" min="0" max="500" step="1" aria-label="HUHC top-up rate">
+            <span class="tick" style="left:31.2%">$156</span>
+            <span class="tick" style="left:74%">$370</span>
+          </div>
+          <p class="caption">Observed range $156–$370.</p>
+        </div>
+
+        <hr class="divider">
+
+        <div class="cols rates">
+          <div>
+            <label for="cpold">Care Plus rate before 1 July 2026</label>
+            <input type="number" id="cpold" min="0" step="0.0001" inputmode="decimal">
+          </div>
+          <div>
+            <label for="cpnew">Care Plus rate from 1 July 2026</label>
+            <input type="number" id="cpnew" min="0" step="0.0001" inputmode="decimal">
+          </div>
+        </div>
+
+        <p class="note">Care Plus rose <b id="delta">$7.69</b>. The formula subtracts a whole person per HUHC holder, so the uplift deepens the deduction instead of offsetting it.</p>
+      </div>
+
+      <div class="btnrow">
+        <button type="button" class="btn sec" data-go="1">Back</button>
+        <button type="button" class="btn spacer" data-go="3">See the impact</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== STEP 3 ========== -->
+  <section id="step3" hidden>
+    <div class="result">
+      <p class="kicker">Annual income swing</p>
+      <p class="headline" id="swing">−$12,046</p>
+      <p class="swingsub" id="swingsub">45 HUHC patients · $267.69 worse off each, per year</p>
+
+      <div class="breakdown">
+        <div class="brow"><span class="lbl">Top&#8209;up no longer paid</span><span class="fig" id="topup">−$11,700</span></div>
+        <div class="brow"><span class="lbl">Care Plus uplift on the deduction</span><span class="fig" id="uplift">−$346</span></div>
+        <div class="brow"><span class="lbl">Care Plus payments removed <em id="potshare">— 7.2% of the pot</em></span><span class="fig" id="potremoved"><span class="cnt">45 ·</span> $13,359</span></div>
+        <div class="brow sens"><span class="lbl">At $156 / $370 per patient</span><span class="fig" id="range">−$7,366 / −$16,996</span></div>
+      </div>
+    </div>
+
+    <div class="ppgrid">
+      <div class="ppcard">
+        <p class="kicker">Per patient · before</p>
+        <div class="pprow"><span>Top&#8209;up</span><span class="fig pos" id="pp-topup-b">+$260.00</span></div>
+        <div class="pprow"><span>Care Plus deduction</span><span class="fig clay" id="pp-cp-b">−$289.18</span></div>
+        <div class="pprow ppnet"><span>Net</span><span class="fig" id="pp-net-b">−$29.18</span></div>
+      </div>
+      <div class="ppcard">
+        <p class="kicker after">Per patient · after</p>
+        <div class="pprow"><span>Top&#8209;up</span><span class="fig">$0.00</span></div>
+        <div class="pprow"><span>Care Plus deduction</span><span class="fig clay" id="pp-cp-a">−$296.87</span></div>
+        <div class="pprow ppnet"><span>Net</span><span class="fig clay" id="pp-net-a">−$296.87</span></div>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button type="button" class="btn sec" data-go="2">Back</button>
+      <button type="button" class="btn sec spacer" id="startover">Start over</button>
+      <button type="button" class="btn" id="export">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"></path><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"></path></svg>
+        Export as PDF
+      </button>
+    </div>
+
+    <details>
+      <summary>Method, caveats and privacy <span class="open"></span></summary>
+      <div class="notes">
+        <div><h3>Whole&#8209;person subtraction</h3><p>The Care Plus formula subtracts the number of enrolled HUHC holders in full, so the marginal cost of HUHC status is exactly one Care Plus payment.</p></div>
+        <div><h3>Rates</h3><p>$296.8718 per expected Care Plus patient from 1 July 2026 (FY2026/27 workbook). The withdrawn HUHC rate is not published — it's your input.</p></div>
+        <div><h3>Care Plus potential</h3><p>An expected count, not a headcount. Across one PHO's 69 practices it ran 3.5–10.3% of the roll; 6.9% is the default.</p></div>
+        <div><h3>Not counted here</h3><p>Roughly $16 per HUHC patient from two Non&#8209;HUHC flexible&#8209;pool streams. Care Plus is PHO funding, so your settlement depends on PHO distribution rules.</p></div>
+        <div><h3>Privacy</h3><p>Nothing leaves your browser — no server, no analytics, no tracking. Inputs are stored locally so the page remembers them; “Start over” clears them.</p></div>
+        <div><h3>Scope</h3><p>Annual, GST exclusive. First&#8209;level capitation doesn't change with HUHC status either side of 1 July, so it isn't modelled.</p></div>
+      </div>
+    </details>
+  </section>
+
+  <div class="sticky" id="sticky">
+    <span class="k">Running annual swing</span>
+    <span class="v" id="sticky-v">−$12,046</span>
+  </div>
+
+  <footer>Health New Zealand Primary Care Capitation Rates workbook FY2026/27 v1.0, effective 1 July 2026. A general model — it contains no practice data.</footer>
+</div>
+
+<!-- ========== PRINT REPORT (A4) ========== -->
+<div data-print-doc>
+  <div class="pd">
+    <div class="mast" data-keep>
+      <div>
+        <h1>HUHC funding impact</h1>
+        <p class="for" id="p-for" hidden></p>
+      </div>
+      <div class="meta">
+        <div>Prepared <span id="p-date"></span></div>
+        <div>Annual figures · GST exclusive</div>
+      </div>
+    </div>
+
+    <div class="sec" data-keep>
+      <p class="k">Annual income swing</p>
+      <p class="big" id="p-swing">−$12,046</p>
+      <p class="sub" id="p-sub">45 HUHC patients · $267.69 worse off each, per year</p>
+    </div>
+
+    <div class="sec rule" data-keep>
+      <p class="k">Breakdown</p>
+      <div style="margin-top:5pt">
+        <div class="row"><span>Top&#8209;up no longer paid</span><span class="f" id="p-topup">−$11,700</span></div>
+        <div class="row"><span>Care Plus uplift applied to the deduction</span><span class="f" id="p-uplift">−$346</span></div>
+        <div class="row"><span>Care Plus payments removed — <span id="p-share">7.2%</span> of the pot</span><span class="f" id="p-removed"><span class="cnt">45 ·</span> $13,359</span></div>
+        <div class="row sens"><span>Sensitivity — at $156 / $370 per patient</span><span class="f" id="p-range">−$7,366 / −$16,996</span></div>
+      </div>
+    </div>
+
+    <div class="sec rule" data-keep>
+      <p class="k">Per patient, per year</p>
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col">To 30 June 2026</th><th scope="col">From 1 July 2026</th></tr></thead>
+        <tbody>
+          <tr><td>HUHC capitation top&#8209;up</td><td class="f" id="p-tb">+$260.00</td><td class="f">$0.00</td></tr>
+          <tr><td>Care Plus deduction</td><td class="f" id="p-cb">−$289.18</td><td class="f after" id="p-ca">−$296.87</td></tr>
+          <tr class="net"><td>Net per patient</td><td class="f" id="p-nb">−$29.18</td><td class="f after" id="p-na">−$296.87</td></tr>
+        </tbody>
+      </table>
+      <p class="caveat">Care Plus rose <span id="p-delta">$7.69</span>. The formula subtracts a whole person per HUHC holder, so the uplift deepens the deduction instead of offsetting it.</p>
+    </div>
+
+    <div class="sec rule" data-keep>
+      <p class="k">Assumptions used</p>
+      <div class="agrid">
+        <div>
+          <div class="arow"><span>HUHC patients enrolled</span><span class="v" id="a-n">45</span></div>
+          <div class="arow"><span>Withdrawn top&#8209;up rate</span><span class="v" id="a-rate">$260.00</span></div>
+          <div class="arow"><span>Counting method</span><span class="v" id="a-mode">Total only</span></div>
+        </div>
+        <div>
+          <div class="arow"><span>Care Plus rate, before</span><span class="v" id="a-cpold">$289.18</span></div>
+          <div class="arow"><span>Care Plus rate, from 1 July</span><span class="v" id="a-cpnew">$296.8718</span></div>
+          <div class="arow"><span>Enrolled population</span><span class="v" id="a-enrolled">9,000</span></div>
+          <div class="arow"><span>Care Plus potential</span><span class="v" id="a-pot">621 est.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec rule" data-keep id="p-bandsec" hidden>
+      <p class="k">Cohort by age and sex</p>
+      <table>
+        <thead><tr><th scope="col">Age band</th><th scope="col">Male</th><th scope="col">Female</th><th scope="col">Rate $/yr</th></tr></thead>
+        <tbody id="p-bandrows"></tbody>
+      </table>
+    </div>
+
+    <div class="sec rule" data-keep>
+      <p class="k">Method and caveats</p>
+      <div class="mgrid">
+        <p><b>Whole&#8209;person subtraction.</b> The Care Plus formula subtracts the number of enrolled HUHC holders in full, so the marginal cost of HUHC status is exactly one Care Plus payment.</p>
+        <p><b>Rates.</b> $296.8718 per expected Care Plus patient from 1 July 2026, per the FY2026/27 capitation workbook. The withdrawn HUHC rate is not published and is supplied by the preparer.</p>
+        <p><b>Care Plus potential.</b> An expected patient count, not a headcount. Across one PHO's 69 practices it ran 3.5–10.3% of the roll; 6.9% is the default estimate.</p>
+        <p><b>Not counted here.</b> Roughly $16 per HUHC patient from two Non&#8209;HUHC flexible&#8209;pool streams. Care Plus is PHO funding, so the practice figure is an attributable share.</p>
+      </div>
+    </div>
+
+    <p class="src">Health New Zealand Primary Care Capitation Rates workbook FY2026/27 v1.0, effective 1 July 2026. Annual figures, GST exclusive. Contains no patient&#8209;level data.</p>
+  </div>
 </div>
 
 <script>
 (function(){
+  "use strict";
+  var KEY = 'huhc-model-v2';
   var BANDS = [
-    {k:'0-4',   m:2.818, f:1.566},
-    {k:'5-14',  m:0.939, f:1.148},
-    {k:'15-24', m:0.313, f:3.132},
-    {k:'25-44', m:3.132, f:7.516},
-    {k:'45-64', m:6.054, f:14.614},
-    {k:'65-74', m:7.620, f:10.647},
-    {k:'75+',   m:15.553,f:24.948}
+    {k:'0–4',   m:2.818,  f:1.566},
+    {k:'5–14',  m:0.939,  f:1.148},
+    {k:'15–24', m:0.313,  f:3.132},
+    {k:'25–44', m:3.132,  f:7.516},
+    {k:'45–64', m:6.054,  f:14.614},
+    {k:'65–74', m:7.620,  f:10.647},
+    {k:'75+',   m:15.553, f:24.948}
   ];
-  var $ = function(id){ return document.getElementById(id); };
-  var mode = 'simple';
+  var DEFAULTS = {
+    practice:'', huhc:'45', rate:'260', cpold:'289.18', cpnew:'296.8718',
+    enrolled:'9000', potmode:'est', potential:'621', mode:'simple',
+    bands: BANDS.map(function(){ return {m:'0', f:'0', r:'0'}; })
+  };
+  var S = clone(DEFAULTS), step = 1;
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function $(id){ return document.getElementById(id); }
 
-  function money(n){
-    var neg = n < 0, v = Math.abs(n);
-    return (neg?'−':'') + '$' + v.toLocaleString('en-NZ',{minimumFractionDigits:0,maximumFractionDigits:0});
+  /* ---------- formatting ---------- */
+  var MINUS = '−';
+  function fmt(n, dp){
+    if(!isFinite(n)) n = 0;
+    var neg = n < 0;
+    var v = Math.abs(n).toLocaleString('en-NZ',{minimumFractionDigits:dp, maximumFractionDigits:dp});
+    return (neg ? MINUS : '') + '$' + v;
   }
-  function money2(n){
-    var neg = n < 0, v = Math.abs(n);
-    return (neg?'−':'') + '$' + v.toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2});
-  }
-  function num(id, fallback){
-    var el = $(id); if(!el) return fallback;
-    var v = parseFloat(el.value);
-    return isFinite(v) && v >= 0 ? v : fallback;
-  }
+  var money  = function(n){ return fmt(n,0); };
+  var money2 = function(n){ return fmt(n,2); };
+  function count(n){ return (isFinite(n)?n:0).toLocaleString('en-NZ'); }
+  function val(s){ var v = parseFloat(s); return (isFinite(v) && v >= 0) ? v : 0; }
 
-  /* build the band rows once */
-  var tb = $('band-rows');
+  /* ---------- band rows ---------- */
+  var tb = $('bandrows');
   BANDS.forEach(function(b,i){
     var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td>' + b.k.replace('-','–') + '</td>' +
-      '<td><input type="number" min="0" step="1" id="bm'+i+'" aria-label="Male, '+b.k+'"></td>' +
-      '<td><input type="number" min="0" step="1" id="bf'+i+'" aria-label="Female, '+b.k+'"></td>' +
-      '<td><input type="number" min="0" step="0.01" id="br'+i+'" aria-label="Rate, '+b.k+'"></td>';
+    tr.innerHTML = '<td>' + b.k + '</td>' +
+      '<td><input type="number" min="0" step="1" inputmode="numeric" id="bm'+i+'" aria-label="Male, '+b.k+'"></td>' +
+      '<td><input type="number" min="0" step="1" inputmode="numeric" id="bf'+i+'" aria-label="Female, '+b.k+'"></td>' +
+      '<td><input type="number" min="0" step="0.01" inputmode="decimal" class="r" id="br'+i+'" aria-label="Rate, '+b.k+'"></td>';
     tb.appendChild(tr);
   });
 
-  function seedBands(){
-    var total = num('huhc',0), rate = num('rate',0);
-    BANDS.forEach(function(b,i){
-      $('bm'+i).value = Math.round(total * b.m / 100);
-      $('bf'+i).value = Math.round(total * b.f / 100);
-      if(!$('br'+i).value) $('br'+i).value = rate.toFixed(2);
-    });
-  }
-
-  function cohort(){
-    if(mode === 'simple'){
-      var n = num('huhc',0), r = num('rate',0);
-      return { n:n, topup:n*r, avg:r };
+  /* ---------- calculation ---------- */
+  function calc(){
+    var n, topup;
+    if(S.mode === 'simple'){
+      n = val(S.huhc); topup = n * val(S.rate);
+    } else {
+      n = 0; topup = 0;
+      S.bands.forEach(function(b){
+        var c = val(b.m) + val(b.f);
+        n += c; topup += c * val(b.r);
+      });
     }
-    var n = 0, topup = 0;
-    BANDS.forEach(function(b,i){
-      var c = num('bm'+i,0) + num('bf'+i,0), r = num('br'+i,0);
-      n += c; topup += c*r;
-    });
-    return { n:n, topup:topup, avg: n>0 ? topup/n : 0 };
+    var avg    = n > 0 ? topup / n : 0,
+        cpOld  = val(S.cpold),
+        cpNew  = val(S.cpnew),
+        delta  = cpNew - cpOld,
+        uplift = n * delta,
+        enrolled = val(S.enrolled),
+        potential = S.potmode === 'manual' ? val(S.potential) : enrolled * 0.069,
+        removed = Math.min(Math.round(n), Math.round(potential)),
+        share = potential > 0 ? Math.min(n / potential, 1) : 0;
+    return {
+      n:n, topup:topup, avg:avg, cpOld:cpOld, cpNew:cpNew, delta:delta, uplift:uplift,
+      swing: -(topup + uplift),
+      low:  -(n * 156 + uplift),
+      high: -(n * 370 + uplift),
+      enrolled:enrolled, potential:potential, removed:removed, share:share,
+      cpRemoved: removed * cpNew,
+      netBefore: avg - cpOld,
+      netAfter: -cpNew
+    };
   }
 
+  /* ---------- render ---------- */
   function render(){
-    var c = cohort(),
-        cpOld = num('cpold',0),
-        cpNew = num('cpnew',0),
-        delta = cpNew - cpOld,
-        enrolled = num('enrolled',0);
+    var c = calc();
+    var name = S.practice.trim();
+    var sub  = count(c.n) + ' HUHC patient' + (c.n === 1 ? '' : 's') +
+               ' · ' + money2(c.avg + c.delta) + ' worse off each, per year';
+    var removedHTML = '<span class="cnt">' + count(c.removed) + ' ·</span> ' + money(c.cpRemoved);
+    var rangeStr = money(c.low) + ' / ' + money(c.high);
+    var shareStr = (c.share * 100).toFixed(1) + '%';
 
-    var potential = $('potmode').value === 'manual'
-      ? num('potential',0)
-      : enrolled * 0.069;
+    $('swing').textContent    = money(c.swing);
+    $('swingsub').textContent = sub;
+    $('topup').textContent    = money(-c.topup);
+    $('uplift').textContent   = money(-c.uplift);
+    $('potshare').textContent = '— ' + shareStr + ' of the pot';
+    $('potremoved').innerHTML = removedHTML;
+    $('range').textContent    = rangeStr;
+    $('sticky-v').textContent = money(c.swing);
+    $('delta').textContent    = money2(c.delta);
 
-    /* the swing: the top-up no longer paid, plus the uplift on a per-head deduction */
-    var upliftCost = c.n * delta,
-        swing = -(c.topup + upliftCost),
-        cpForgone = c.n * cpNew;
+    $('pp-topup-b').textContent = '+' + money2(c.avg);
+    $('pp-cp-b').textContent    = money2(-c.cpOld);
+    $('pp-net-b').textContent   = money2(c.netBefore);
+    $('pp-net-b').className     = 'fig' + (c.netBefore >= 0 ? ' pos' : ' clay');
+    $('pp-cp-a').textContent    = money2(-c.cpNew);
+    $('pp-net-a').textContent   = money2(c.netAfter);
 
-    $('out-swing').textContent = money(swing);
-    $('out-swing-sub').textContent = c.n.toLocaleString('en-NZ') + ' HUHC patient' + (c.n===1?'':'s') +
-      ' · ' + money2(c.avg + delta) + ' worse off per patient, per year';
+    if(S.mode === 'detail'){
+      var tm = 0, tf = 0;
+      S.bands.forEach(function(b){ tm += val(b.m); tf += val(b.f); });
+      $('bt-m').textContent = count(tm);
+      $('bt-f').textContent = count(tf);
+      $('bt-r').textContent = c.n > 0 ? money2(c.avg) : '—';
+    }
 
-    $('out-low').textContent  = money(-(c.n*156 + upliftCost));
-    $('out-high').textContent = money(-(c.n*370 + upliftCost));
-
-    $('out-topup').textContent  = money(-c.topup);
-    $('out-uplift').textContent = money(-upliftCost);
-    $('out-cpforgone').textContent = money(cpForgone);
-    $('out-delta').textContent = money2(delta);
-
-    /* per-patient ledger, at the cohort's average rate */
-    $('pp-topup-before').textContent = '+' + money2(c.avg);
-    $('pp-cp-before').textContent    = money2(-cpOld);
-    var netBefore = c.avg - cpOld;
-    var nb = $('pp-net-before');
-    nb.textContent = (netBefore>=0?'+':'') + money2(netBefore);
-    nb.className = netBefore >= 0 ? 'pos' : 'neg';
-    $('pp-cp-after').textContent  = money2(-cpNew);
-    $('pp-net-after').textContent = money2(-cpNew);
-
-    /* pot */
-    var share = potential > 0 ? Math.min(c.n / potential, 1) : 0;
-    $('out-potshare').textContent = potential > 0 ? (share*100).toFixed(1) + '%' : '—';
-    $('pot-fill').style.width = (share*100).toFixed(2) + '%';
-    $('pot-retained').textContent = money(Math.max(potential - c.n, 0) * cpNew);
-    $('pot-removed').textContent  = money(Math.min(c.n, potential) * cpNew);
-
-    /* practice name -> print header */
-    var name = $('practice').value.trim();
-    var phFor = $('ph-for');
-    phFor.textContent = name ? 'Prepared for ' + name : '';
-    phFor.hidden = !name;
+    /* print doc */
+    $('p-for').textContent = name ? 'Prepared for ' + name : '';
+    $('p-for').hidden = !name;
     document.title = name ? name + ' — HUHC funding impact' : 'HUHC Funding Calculator';
 
-    /* band totals */
-    if(mode === 'detail'){
-      var tm=0, tf=0;
-      BANDS.forEach(function(b,i){ tm += num('bm'+i,0); tf += num('bf'+i,0); });
-      $('bt-m').textContent = tm.toLocaleString('en-NZ');
-      $('bt-f').textContent = tf.toLocaleString('en-NZ');
-      $('bt-r').textContent = c.n>0 ? money2(c.avg) : '—';
+    $('p-swing').textContent   = money(c.swing);
+    $('p-sub').textContent     = sub;
+    $('p-topup').textContent   = money(-c.topup);
+    $('p-uplift').textContent  = money(-c.uplift);
+    $('p-share').textContent   = shareStr;
+    $('p-removed').innerHTML   = removedHTML;
+    $('p-range').textContent   = rangeStr;
+    $('p-tb').textContent      = '+' + money2(c.avg);
+    $('p-cb').textContent      = money2(-c.cpOld);
+    $('p-ca').textContent      = money2(-c.cpNew);
+    $('p-nb').textContent      = money2(c.netBefore);
+    $('p-na').textContent      = money2(c.netAfter);
+    $('p-delta').textContent   = money2(c.delta);
+
+    $('a-n').textContent        = count(c.n);
+    $('a-rate').textContent     = money2(c.avg);
+    $('a-mode').textContent     = S.mode === 'simple' ? 'Total only' : 'By age & sex';
+    $('a-cpold').textContent    = '$' + val(S.cpold).toLocaleString('en-NZ',{minimumFractionDigits:2, maximumFractionDigits:4});
+    $('a-cpnew').textContent    = '$' + val(S.cpnew).toLocaleString('en-NZ',{minimumFractionDigits:2, maximumFractionDigits:4});
+    $('a-enrolled').textContent = count(c.enrolled);
+    $('a-pot').textContent      = count(Math.round(c.potential)) + (S.potmode === 'manual' ? ' entered' : ' est.');
+
+    $('p-bandsec').hidden = S.mode !== 'detail';
+    if(S.mode === 'detail'){
+      var rows = '';
+      S.bands.forEach(function(b,i){
+        rows += '<tr><td>' + BANDS[i].k + '</td><td class="f">' + count(val(b.m)) +
+                '</td><td class="f">' + count(val(b.f)) + '</td><td class="f">' + money2(val(b.r)) + '</td></tr>';
+      });
+      $('p-bandrows').innerHTML = rows;
     }
     save();
   }
 
-  function save(){
-    try{
-      var d = {mode:mode};
-      ['practice','huhc','rate','cpold','cpnew','enrolled','potential','potmode'].forEach(function(k){ d[k] = $(k).value; });
-      BANDS.forEach(function(b,i){ d['bm'+i]=$('bm'+i).value; d['bf'+i]=$('bf'+i).value; d['br'+i]=$('br'+i).value; });
-      localStorage.setItem('huhc-model', JSON.stringify(d));
-    }catch(e){}
-  }
+  /* ---------- persistence ---------- */
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
   function load(){
     try{
-      var raw = localStorage.getItem('huhc-model'); if(!raw) return false;
-      var d = JSON.parse(raw); if(!d) return false;
-      Object.keys(d).forEach(function(k){ if(k!=='mode' && $(k)) $(k).value = d[k]; });
-      if(d.mode) setMode(d.mode, true);
-      return true;
-    }catch(e){ return false; }
+      var raw = localStorage.getItem(KEY); if(!raw) return;
+      var d = JSON.parse(raw); if(!d || typeof d !== 'object') return;
+      Object.keys(DEFAULTS).forEach(function(k){
+        if(k === 'bands') return;
+        if(typeof d[k] === 'string') S[k] = d[k];
+      });
+      if(Array.isArray(d.bands) && d.bands.length === 7) S.bands = d.bands;
+    }catch(e){}
+  }
+
+  /* ---------- state -> fields ---------- */
+  function paint(){
+    $('practice').value  = S.practice;
+    $('huhc').value      = S.huhc;
+    $('rate').value      = S.rate;
+    $('rate-slider').value = Math.min(Math.max(val(S.rate), 0), 500);
+    $('cpold').value     = S.cpold;
+    $('cpnew').value     = S.cpnew;
+    $('enrolled').value  = S.enrolled;
+    $('potmode').value   = S.potmode;
+    $('potential').value = S.potential;
+    S.bands.forEach(function(b,i){
+      $('bm'+i).value = b.m; $('bf'+i).value = b.f; $('br'+i).value = b.r;
+    });
+    setMode(S.mode, true);
+    $('pot-manual').hidden = S.potmode !== 'manual';
   }
 
   function setMode(m, quiet){
-    mode = m;
+    S.mode = m;
     var simple = m === 'simple';
-    $('mode-simple').setAttribute('aria-pressed', simple ? 'true':'false');
-    $('mode-detail').setAttribute('aria-pressed', simple ? 'false':'true');
+    $('mode-simple').setAttribute('aria-pressed', simple ? 'true' : 'false');
+    $('mode-detail').setAttribute('aria-pressed', simple ? 'false' : 'true');
     $('simple-block').hidden = !simple;
     $('detail-block').hidden = simple;
-    $('simple-rate-field').hidden = !simple;
-    if(!simple && !quiet) seedBands();
     if(!quiet) render();
   }
 
-  /* wiring */
-  $('mode-simple').addEventListener('click', function(){ setMode('simple'); });
-  $('mode-detail').addEventListener('click', function(){ setMode('detail'); });
+  function seedBands(){
+    var total = val(S.huhc), rate = S.rate;
+    S.bands = BANDS.map(function(b){
+      return { m: String(Math.round(total * b.m / 100)),
+               f: String(Math.round(total * b.f / 100)),
+               r: rate };
+    });
+    S.bands.forEach(function(b,i){
+      $('bm'+i).value = b.m; $('bf'+i).value = b.f; $('br'+i).value = b.r;
+    });
+  }
 
-  $('rate').addEventListener('input', function(){
-    var v = parseFloat(this.value);
-    if(isFinite(v)) $('rate-slider').value = Math.min(Math.max(v,0),500);
-    render();
-  });
-  $('rate-slider').addEventListener('input', function(){
-    $('rate').value = this.value;
-    render();
-  });
-  $('potmode').addEventListener('change', function(){
-    $('pot-manual-field').hidden = this.value !== 'manual';
-    render();
+  function setStep(n){
+    step = n;
+    [1,2,3].forEach(function(i){ $('step'+i).hidden = (i !== n); });
+    Array.prototype.forEach.call(document.querySelectorAll('.rail button'), function(b){
+      if(String(n) === b.getAttribute('data-go')) b.setAttribute('aria-current','step');
+      else b.removeAttribute('aria-current');
+    });
+    $('sticky').hidden = (n === 3);
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  /* ---------- wiring ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-go]'), function(b){
+    b.addEventListener('click', function(){ setStep(parseInt(b.getAttribute('data-go'),10)); });
   });
 
   ['practice','huhc','cpold','cpnew','enrolled','potential'].forEach(function(id){
-    $(id).addEventListener('input', render);
+    $(id).addEventListener('input', function(){ S[id] = this.value; render(); });
   });
+
+  $('rate').addEventListener('input', function(){
+    S.rate = this.value;
+    $('rate-slider').value = Math.min(Math.max(val(this.value), 0), 500);
+    render();
+  });
+  $('rate-slider').addEventListener('input', function(){
+    S.rate = this.value;
+    $('rate').value = this.value;
+    render();
+  });
+
+  $('potmode').addEventListener('change', function(){
+    S.potmode = this.value;
+    $('pot-manual').hidden = this.value !== 'manual';
+    render();
+  });
+
+  $('mode-simple').addEventListener('click', function(){ setMode('simple'); });
+  $('mode-detail').addEventListener('click', function(){ seedBands(); setMode('detail'); });
+
   BANDS.forEach(function(b,i){
-    ['bm','bf','br'].forEach(function(p){ $(p+i).addEventListener('input', render); });
+    [['bm','m'],['bf','f'],['br','r']].forEach(function(pair){
+      $(pair[0]+i).addEventListener('input', function(){ S.bands[i][pair[1]] = this.value; render(); });
+    });
   });
 
-  $('export-pdf').addEventListener('click', function(){
-    $('ph-date').textContent = new Date().toLocaleDateString('en-NZ',
-      {day:'numeric', month:'long', year:'numeric'});
-    window.print();
+  $('export').addEventListener('click', function(){ window.print(); });
+
+  $('startover').addEventListener('click', function(){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    S = clone(DEFAULTS);
+    document.title = 'HUHC Funding Calculator';
+    paint(); render(); setStep(1);
   });
 
-  $('reset').addEventListener('click', function(){
-    try{ localStorage.removeItem('huhc-model'); }catch(e){}
-    location.reload();
-  });
-
-  $('ph-date').textContent = new Date().toLocaleDateString('en-NZ',
-    {day:'numeric', month:'long', year:'numeric'});
-
-  seedBands();
+  /* ---------- boot ---------- */
+  $('p-date').textContent = new Date().toLocaleDateString('en-NZ',{day:'numeric', month:'long', year:'numeric'});
   load();
-  $('pot-manual-field').hidden = $('potmode').value !== 'manual';
+  paint();
   render();
+  setStep(1);
 })();
 </script>
+</body>
+</html>
